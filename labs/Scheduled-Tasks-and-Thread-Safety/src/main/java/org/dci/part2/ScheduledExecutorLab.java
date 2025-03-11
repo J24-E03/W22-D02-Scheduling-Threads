@@ -1,4 +1,4 @@
-package org.dci.part1;
+package org.dci.part2;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -13,18 +13,20 @@ public class ScheduledExecutorLab {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
         Runnable timePrinter = () -> {
-            System.out.println("Current Time: " + LocalTime.now().format(formatter));
+            System.out.println("Probing service at " + LocalTime.now().format(formatter));
         };
 
-        scheduledExecutorService.scheduleAtFixedRate(timePrinter, 0, 1, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(timePrinter, 2, 3, TimeUnit.SECONDS);
 
+        scheduledExecutorService.schedule(() -> {
+            System.out.println("\nShutting down ...");
+            scheduledExecutorService.shutdown();
+        }, 15, TimeUnit.SECONDS);
         try {
-            if (!scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS)) {
-                System.out.println("\nShutting down ...");
-                scheduledExecutorService.shutdownNow();
-            }
+            scheduledExecutorService.awaitTermination(16, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println("Shutdown interrupted!");
+            Thread.currentThread().interrupt();
         }
 
     }
